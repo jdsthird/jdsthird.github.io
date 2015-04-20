@@ -39,3 +39,7 @@ h1{
 h3{
 	text-align: center;
 }
+
+a:visited{
+	color: purple;
+}
