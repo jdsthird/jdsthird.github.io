@@ -1,45 +1,54 @@
 html{
 	margin: 0;
-	background-image: url("http://jdsthird.github.io/images/brandenburg-gate.jpg");
+	background-image: url("../images/brandenburg-gate.JPG");
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: cover;
+	color: black;
 }
 
 html, body{
 	height: 100%;
 }
 
-h1{
+header{
+	display: inline-block;
+	margin: 0 auto;
 	text-align: center;
 	font-family: cursive;
+	background-color: white;
+	opacity: .6;
+}
+
+.Text{
+	color: black;
+	opacity: 1;
 }
 
 #Navbar{
 		width: 100%;
 		display: table;
-}
-
-.NavbarColor{
-	background-color: green;
+		background-color: white;
+		opacity: .6;
 }
 
 .NavbarItem{
 	display: block;
-	left: 0;
 	float: left;
 	padding: 0 1em 0 1em;
 	margin: 0;
-	position: relative;
+	text-decoration: none;
 	color: black;
-	background-color: green;
-}
-
-.NavbarItem:hover{
-	color: red;
 }
 
 h3{
 	text-align: center;
 }
 
-a:visited{
+.NavbarItem:hover{
+	color: red;
+}
+
+.NavbarItem:visited{
 	color: purple;
 }
