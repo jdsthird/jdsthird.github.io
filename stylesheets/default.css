@@ -1,4 +1,4 @@
-*{
+html{
 	margin: 0;
 	background-color: grey;
 }
@@ -10,19 +10,15 @@ html, body{
 h1{
 	text-align: center;
 	font-family: cursive;
-	background-color: grey;
-	padding: .5em;
-}
-
-h2{
-	background-color: green;
 }
 
 #Navbar{
-		background-color: green;
 		width: 100%;
 		display: table;
-		padding: .5em;
+}
+
+.NavbarColor{
+	background-color: green;
 }
 
 .NavbarItem{
@@ -38,10 +34,6 @@ h2{
 
 .NavbarItem:hover{
 	color: red;
-}
-
-section{
-	padding-top: 3em;
 }
 
 h3{
