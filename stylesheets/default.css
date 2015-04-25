@@ -1,10 +1,10 @@
 html{
 	margin: 0;
-	background-image: url("../images/brandenburg-gate.JPG");
+	background-image: url("../images/supreme-court-edited.JPG");
 	background-repeat: no-repeat;
 	background-position: center;
 	background-size: cover;
-	color: black;
+	color: white;
 }
 
 html, body{
@@ -12,12 +12,12 @@ html, body{
 }
 
 header{
-	display: inline-block;
+	display: inline;
 	margin: 0 auto;
 	text-align: center;
 	font-family: cursive;
-	background-color: white;
-	opacity: .6;
+	/*background-color: white;
+	opacity: .6;*/
 }
 
 .Text{
@@ -28,8 +28,8 @@ header{
 #Navbar{
 		width: 100%;
 		display: table;
-		background-color: white;
-		opacity: .6;
+		/*background-color: white;
+		opacity: .6;*/
 }
 
 .NavbarItem{
@@ -38,7 +38,7 @@ header{
 	padding: 0 1em 0 1em;
 	margin: 0;
 	text-decoration: none;
-	color: black;
+	color: white;
 }
 
 h3{
