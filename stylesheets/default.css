@@ -12,8 +12,8 @@ html, body{
 }
 
 header{
-	display: inline;
-	margin: 0 auto;
+	/*display: inline;*/
+	margin: 30px auto 0px;
 	text-align: center;
 	font-family: cursive;
 	/*background-color: white;
@@ -33,8 +33,7 @@ a:link{
 #Navbar{
 		width: 100%;
 		display: table;
-		/*background-color: white;
-		opacity: .6;*/
+		margin: 10px auto;
 }
 
 .NavbarItem{
@@ -43,6 +42,10 @@ a:link{
 	padding: 0 1em 0 1em;
 	margin: 0;
 	text-decoration: none;
+}
+
+h1{
+	margin: 0 auto;
 }
 
 h3{
