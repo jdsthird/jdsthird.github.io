@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<head>
+  <title>April 25, 2015 Technical Blog Post</title>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" type="text/css" href="../stylesheets/default.css" />
+  <link rel="stylesheet" type="text/css" href="../stylesheets/blog-stylesheet.css" />
+</head>
+
+<main>
+  <h1>John Sternberg's Fabulous Website</h1>
+  <div id="Navbar">
+    <a class="NavbarItem NavbarColor" href="../index.html"><h2>Home</h2></a>
+    <a class="NavbarItem NavbarColor" href="../law/index.html"><h2>Law</h2></a>
+    <a class="NavbarItem NavbarColor" href="../math/index.html"><h2>Math</h2></a>
+    <a class="NavbarItem NavbarColor" href="index.html"><h2>Blog</h2></a>
+    <a class="NavbarItem NavbarColor" href="../games/index.html"><h2>Games</h2></a>
+    <a class="NavbarItem NavbarColor" href="../contact/index.html"><h2>Contact</h2></a>
+  </div>
+  <section class="BlogContent">
+    <h1>Why Hash When You Can Array?</h1>
+    <h2>A Question of Convenience</h2>
+    <h4>April 25, 2015</h4>
+
+    <section>
+      <p>If you're anything like me, your first thought upon seeing a hash was, "But this is just an array of ordered pairs..." It wasn't clear to me why one would need a separate variable type to do what we could already do with arrays. But I was missing the point. I don't know how ruby compilers are written, but I imagine that behind the scenes hash objects are simply arrays of ordered pairs with predefined methods to save us all time. Because the smart people who created ruby knew we would all want to implement the same functionality on our own if they didn't do it for us.</p>
+
+      <p>So really the question is not "why a hash as opposed to an array," but "why a hash at all." And the answer &dash; like many answers in computer science &dash; boils down to strategic laziness. Specifically, hashes afford the following advantages:
+      </p>
+      <p>
+        <ol>
+          <li>Hashes save the programmer the trouble of remembering details. I may not be able to memorize 500 full names, but a hash can.</li>
+          <li>Hashes reduces code repetition. Rather than typing 312-555-8754, I can type phone["sam"]. This may not seem like much of a reduction, but (1) the compiler auto-filled the variable names, and (2) my next program may require 487-bit strings, not phone numbers.</li>
+          <li>Hashes promote distribution of labor. The developer using the hash doesn't need to know any of the individual elements ofthe hash, only the basic parameters of what it contains.</li> 
+        </ol>
+      </p>
+      <p>So, having made these points, when should one use hashes? Consider the following example: Two developers are co-designing a video game. One might develop graphics and layouts while the other develops the engine and objects to populate the game world. When the former decides that level 7 should contain two orcs and an elf for the player to fight, she doesn't want to worry about the details of creating orcs or elves. She just wants to ask for two orcs and an elf. Now, Developer 2 could create two object classes "orc" and "elf" to define these characters, but Developer 1 may find it much easier if Developer 2 creats a "character" class, which contains "orc" and "elf" as sub-classes. Developer 1 can then specify the character's race, which is the key to a hash that populates the details of the relevant sub-type. Developer 1 writes less code and gets to ignore the details, while Developer 2 is free to change the details of the various sub-types without forcing Developer 1 to re-write any code. Everyone wins!.</p>
+      <!--paragraphs of text go here-->
+    </section>
+  </section>
+</main>
+
