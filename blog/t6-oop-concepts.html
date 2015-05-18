@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<head>
+  <title>May 14, 2015 Technical Blog Post</title>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" type="text/css" href="../stylesheets/default.css" />
+  <link rel="stylesheet" type="text/css" href="../stylesheets/blog-stylesheet.css" />
+</head>
+
+<main>
+  <header><h1>John Sternberg's Fabulous Website</h1></header>
+  <div id="Navbar">
+    <a class="NavbarItem NavbarColor" href="../index.html"><h2>Home</h2></a>
+    <a class="NavbarItem NavbarColor" href="../law/index.html"><h2>Law</h2></a>
+    <a class="NavbarItem NavbarColor" href="../math/index.html"><h2>Math</h2></a>
+    <a class="NavbarItem NavbarColor" href="index.html"><h2>Blog</h2></a>
+    <a class="NavbarItem NavbarColor" href="../games/index.html"><h2>Games</h2></a>
+    <a class="NavbarItem NavbarColor" href="../contact/index.html"><h2>Contact</h2></a>
+  </div>
+  <section class="BlogContent">
+    <h1>Blocks, Procs, and Lambdas</h1>
+    <h2>But really just Procs and Lambdas</h2>
+    <h4>May 14, 2015</h4>
+
+    <section>
+      <p>I have plans to meet a friend in Wicker Park today, and those of you familiar with Chicago will know how appropriate that is because we're about to get meta!</p>
+      <p>Everyone in week 6 of DBC Phase 0 knows what a block is. Every time we type "do... end" in ruby, we are creating a block. Similarly, code snippets of the form "{|variable| function applied to variable}" are blocks. Blocks are just little pieces of code that feed into functions. Probably the most common example of this is the Array#each method. As explained <a href="http://ruby-doc.org/core-2.2.2/Array.html#method-i-each">here</a>, the Array#each method sends each element of the given array to the supplied block in turn. It's saying "run this block array.size times with array[i] input for i = (0...array.size)," so that you don't have to type the block over and over again.</p>
+      <p>But here's the thing: <strong>a block isn't really a block! It's a Proc!</strong></p>
+      <p>Procs (or Processes) are pieces of code stored as a class instance, and a block is just a special subset of Procs. You can declare a Proc just like any other class instance by calling Proc.new, and giving it code as an argument. This Proc can then be called by its variable name anywhere in the program allowed by standard variable scoping rules. For example:</p>
+      <pre>
+      <code>
+      instr = Proc.new {|i| puts i * 2}
+      [1, 2, 3].each do |n|
+        Proc.call(n)
+      end
+      </code>
+      </pre>
+      Does exactly the same thing as:
+      <pre>
+      <code>
+      [1, 2, 3].each do |n|
+        puts n * 2
+      end
+      </code>
+      </pre>
+      <p>Why would anyone ever use the first option, you ask? The answer is they wouldn't. It just doesn't make sense. This is why blocks are useful. If you only need to use the code once, creating a named variable is a waste of time! If, however, you need to reuse code often, creating a proc can save a lot of time.
+      </p>
+      <p>Lambdas, like blocks, are a special subset of Procs. Lamdbas differ slightly from standard Procs in that they behave
+      more like methods that simply code blocks. This is significant in the following scenario:</p>
+      <pre>
+        <code>
+          @code = lambda {|x| return x * 2}
+
+          def function(num)
+            output = @code.call(num)
+            output * 2
+          end
+
+          puts function(1)
+        </code>
+      </pre>
+      <p>When the above is run, 4 is printed to the terminal. However, the following results in an error (try it):</p>
+      <pre>
+        <code>
+          @code = Proc.new {|x| return x * 2}
+
+          def function(num)
+            output = @code.call(num)
+            output * 2
+          end
+
+          puts function(1)
+        </code>
+      </pre>
+      <p>The error occurs because Procs are treated like code, not functions. Therefore, the above is equivalent to:</p>
+      <pre>
+        <code>
+          def function(num)
+            output = return num * 2
+            output * 2
+          end
+
+          puts function(1)
+        </code>
+      </pre>
+      <p>Clearly, assigning output the value "return num * 2" makes no sense, so we get an error.</p>
+      <p>As you can hopefully see, both Procs and lambdas have the very powerful ability to turn code into a variable, but reflect slightly different uses of those variables. I hope this lesson proves helpful to you. I know I'm excited to put this newfound knowledge to use. But if you'll excuse me, I need to go make an uncool thing trendy by doing it "ironically."</p>
+    </section>
+  </section>
+</main>
+
