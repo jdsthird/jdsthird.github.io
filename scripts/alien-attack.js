@@ -203,6 +203,7 @@ addEventListener("keyup", function(event){
 
 addEventListener("click", function(event){
 	display.cx.textAlign = "left";
+	score = 0;
 	gameRunning = true;
 	requestAnimationFrame(update);
 })
@@ -288,5 +289,4 @@ function resetGame(){
 		projectiles.pop();
 	}
 	playerShip.health = 100;
-	score = 0;
 }
