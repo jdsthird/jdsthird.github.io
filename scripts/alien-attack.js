@@ -10,7 +10,8 @@ const gameConstants = {
 	ENEMY_SHIP_SPEED: 75,
 	SPAWN_DELAY: 2,
 	HEALTH_STRING: "Health: ",
-	SCORE_STRING: "Score: "
+	SCORE_STRING: "Score: ",
+	WELCOME_MESSAGE: "Welcome to Alien-Attack!\nClick anywhere to begin."
 }
 
 var date = new Date();
@@ -20,6 +21,7 @@ var projectiles = [];
 var enemies = [];
 var sinceSpawn = 0;
 var score = 0;
+var gameRunning = false;
 
 
 function PlayerShip(){
@@ -32,6 +34,8 @@ function PlayerShip(){
 PlayerShip.prototype.update = function(ellapsedTime){
 	this.x = Math.min(gameConstants.WINDOW_WIDTH - gameConstants.PLAYER_SHIP_WIDTH,
 		Math.max(0, this.x += gameConstants.PLAYER_SHIP_SPEED * this.direction * ellapsedTime));
+	if (this.health <= 0)
+		gameRunning = false;
 }
 
 PlayerShip.prototype.shoot = function(){
@@ -150,9 +154,10 @@ function update(time){
 	checkCollisions(projectiles, enemies);
 	deleteInactive(projectiles);
 	deleteInactive(enemies);
-	spawnEnemies(ellapsedTime);
+	if (gameRunning)
+		spawnEnemies(ellapsedTime);
 	drawObjects(display.cx);
-	drawText(display.cx, playerShip.health, score);
+	drawText(display.cx, playerShip.health, score)
 	requestAnimationFrame(update);
 }
 
@@ -172,7 +177,9 @@ CanvasDisplay.prototype.wipeCanvas = function(){
 
 playerShip = new PlayerShip();
 display = new CanvasDisplay(document.querySelector("section"));
-requestAnimationFrame(update);
+display.cx.fillText(gameConstants.WELCOME_MESSAGE, 
+	(gameConstants.WINDOW_WIDTH - display.cx.measureText(gameConstants.WELCOME_MESSAGE).width) / 2,
+	gameConstants.WINDOW_HEIGHT / 2 + 7);
 
 
 addEventListener("keydown", function(event){
@@ -194,6 +201,12 @@ addEventListener("keyup", function(event){
 	keyPrevDown = false;
 })
 
+addEventListener("click", function(event){
+	display.cx.textAlign = "left";
+	gameRunning = true;
+	requestAnimationFrame(update);
+})
+
 function ellapsedGameTime(time){
 	if (lastTime != undefined)
 		var ellapsedTime = parseFloat((time - lastTime) / 1000);
@@ -210,12 +223,14 @@ function updateObjects(array, ellapsedTime, cx){
 }
 
 function drawObjects(displayContext){
-	playerShip.draw(displayContext);
-	for (i=0; i<projectiles.length; i++){
-		projectiles[i].draw(displayContext);
-	}
-	for (i=0; i<enemies.length; i++){
-		enemies[i].draw(displayContext);
+	if (gameRunning){
+		playerShip.draw(displayContext);
+		for (i=0; i<projectiles.length; i++){
+			projectiles[i].draw(displayContext);
+		}
+		for (i=0; i<enemies.length; i++){
+			enemies[i].draw(displayContext);
+		}
 	}
 }
 
@@ -244,7 +259,7 @@ function deleteInactive(array){
 
 function spawnEnemies(ellapsedTime){
 	sinceSpawn += ellapsedTime;
-	if (sinceSpawn > gameConstants.SPAWN_DELAY && Math.floor(Math.random() * 4) == 1){
+	if (gameRunning && sinceSpawn > gameConstants.SPAWN_DELAY && Math.floor(Math.random() * 4) == 1){
 		enemies.push(new EnemyShip(Math.floor(Math.random() * (
 			gameConstants.WINDOW_WIDTH - gameConstants.ENEMY_SHIP_WIDTH))));
  		sinceSpawn = 0;
@@ -252,20 +267,26 @@ function spawnEnemies(ellapsedTime){
 }
 
 function drawText(displayContext, health, score){
-	if (health > 0){
+	if (gameRunning){
 		displayContext.fillText(gameConstants.HEALTH_STRING + health, 10, 17);
 		displayContext.fillText(gameConstants.SCORE_STRING + score, 10, 37);
 	}
 	else{
-		for (i=0; i<enemies.length; i++){
-			enemies[i].active = false;
-		}
-		for (i=0; i<projectiles.length; i++){
-			projectiles[i].active = false;
-		}
+		resetGame();
 		displayContext.textAlign = "center";
 		displayContext.fillText("YOU ARE DEAD", gameConstants.WINDOW_WIDTH / 2, gameConstants.WINDOW_HEIGHT / 2 - 5);
 		displayContext.fillText(gameConstants.SCORE_STRING + score,
-			gameConstants.WINDOW_WIDTH / 2, gameConstants.WINDOW_HEIGHT / 2 + 20);
+			gameConstants.WINDOW_WIDTH / 2, gameConstants.WINDOW_HEIGHT / 2 + 20);	
 	}
+}
+
+function resetGame(){
+	while (enemies.length > 0){
+		enemies.pop();
+	}
+	while (projectiles.length > 0){
+		projectiles.pop();
+	}
+	playerShip.health = 100;
+	score = 0;
 }
