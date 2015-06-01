@@ -1,14 +1,16 @@
 const gameConstants = {
-	PLAYER_SHIP_HEIGHT: 20,
-	PLAYER_SHIP_WIDTH: 14,
+	PLAYER_SHIP_HEIGHT: 40,
+	PLAYER_SHIP_WIDTH: 28,
 	PLAYER_SHIP_SPEED: 100,
 	PROJECTILE_SPEED: 150,
 	WINDOW_WIDTH: 800,
-	WINDOW_HEIGHT: 550,
-	ENEMY_SHIP_HEIGHT: 10,
-	ENEMY_SHIP_WIDTH: 14,
+	WINDOW_HEIGHT: 500,
+	ENEMY_SHIP_HEIGHT: 30,
+	ENEMY_SHIP_WIDTH: 42,
 	ENEMY_SHIP_SPEED: 75,
-	SPAWN_DELAY: 2
+	SPAWN_DELAY: 2,
+	HEALTH_STRING: "Health: ",
+	SCORE_STRING: "Score: "
 }
 
 var date = new Date();
@@ -17,6 +19,7 @@ var lastTime = undefined;
 var projectiles = [];
 var enemies = [];
 var sinceSpawn = 0;
+var score = 0;
 
 
 function PlayerShip(){
@@ -27,9 +30,8 @@ function PlayerShip(){
 }
 
 PlayerShip.prototype.update = function(ellapsedTime){
-	if (this.health > 0)
-		this.x = Math.min(gameConstants.WINDOW_WIDTH - gameConstants.PLAYER_SHIP_WIDTH,
-			Math.max(0, this.x += gameConstants.PLAYER_SHIP_SPEED * this.direction * ellapsedTime));
+	this.x = Math.min(gameConstants.WINDOW_WIDTH - gameConstants.PLAYER_SHIP_WIDTH,
+		Math.max(0, this.x += gameConstants.PLAYER_SHIP_SPEED * this.direction * ellapsedTime));
 }
 
 PlayerShip.prototype.shoot = function(){
@@ -39,22 +41,33 @@ PlayerShip.prototype.shoot = function(){
 PlayerShip.prototype.draw = function(cx){
 	if (this.health > 0){
 		cx.beginPath();
-		cx.moveTo(this.x, this.y + 20);
-		cx.quadraticCurveTo(this.x + 7, this.y, this.x + 14, this.y + 20);
-		cx.lineTo(this.x + 7, this.y);
+		cx.moveTo(this.x, this.y + gameConstants.PLAYER_SHIP_HEIGHT);
+		cx.quadraticCurveTo(this.x + gameConstants.PLAYER_SHIP_WIDTH / 2,
+			this.y,
+			this.x + gameConstants.PLAYER_SHIP_WIDTH,
+			this.y + gameConstants.PLAYER_SHIP_HEIGHT);
+		cx.lineTo(this.x + gameConstants.PLAYER_SHIP_WIDTH / 2, this.y);
 		cx.fill();
 	}
 }
 
 PlayerShip.prototype.checkCollision = function(projectile){
-	if (projectile.x <= this.x + gameConstants.PLAYER_SHIP_WIDTH &&
+	if (projectile.x <= (this.x + gameConstants.PLAYER_SHIP_WIDTH) &&
 		projectile.x >= this.x &&
-		projectile.y >= gameConstants.WINDOW_HEIGHT - gameConstants.PLAYER_SHIP_HEIGHT){
+		projectile.y >= (gameConstants.WINDOW_HEIGHT - gameConstants.PLAYER_SHIP_HEIGHT)){
 		projectile.active = false;
 		this.health -= 10;
-		console.log(this.health);
 	}
 };
+
+PlayerShip.prototype.checkEnemyCollision = function(enemyShip){
+	if (enemyShip.x <= this.x + gameConstants.PLAYER_SHIP_WIDTH &&
+		enemyShip.x >= this.x - gameConstants.ENEMY_SHIP_WIDTH &&
+		enemyShip.y >= this.y - gameConstants.ENEMY_SHIP_HEIGHT){
+		this.health -= 40;
+		enemyShip.active = false;
+	}
+}
 
 function Projectile(playerProjectile, x, y){
 	this.active = true;
@@ -64,13 +77,11 @@ function Projectile(playerProjectile, x, y){
 }
 
 Projectile.prototype.update = function(ellapsedTime){
-	if (!this.active)
-		return;
 	if (this.playerProjectile)
 		this.y -= gameConstants.PROJECTILE_SPEED * ellapsedTime;
 	else
 		this.y += gameConstants.PROJECTILE_SPEED * ellapsedTime;
-	if (this.y < 0 || this > gameConstants.WINDOW_HEIGHT)
+	if (this.y >= gameConstants.WINDOW_HEIGHT || this.y <= 0)
 		this.active = false;
 };
 
@@ -113,9 +124,20 @@ EnemyShip.prototype.draw = function(cx){
 };
 
 EnemyShip.prototype.shoot = function(){
-	enemies.push(new Projectile(false,
+	projectiles.push(new Projectile(false,
 		this.x + gameConstants.ENEMY_SHIP_WIDTH / 2,
 		this.y + gameConstants.ENEMY_SHIP_HEIGHT));
+};
+
+EnemyShip.prototype.checkCollision = function(projectile){
+	if (projectile.x <= (this.x + gameConstants.ENEMY_SHIP_WIDTH) &&
+		projectile.x >= this.x &&
+		projectile.y >= this.y &&
+		projectile.y <= (this.y + gameConstants.ENEMY_SHIP_HEIGHT)){
+		projectile.active = false;
+		this.active = false;
+		score += 10;
+	}
 };
 
 
@@ -123,14 +145,14 @@ function update(time){
 	var ellapsedTime = ellapsedGameTime(time);
 	display.wipeCanvas();
 	playerShip.update(ellapsedTime);
-	// playerShip.draw(display.cx);
 	updateObjects(projectiles, ellapsedTime, display.cx);
 	updateObjects(enemies, ellapsedTime, display.cx);
-	checkCollisions(projectiles);
+	checkCollisions(projectiles, enemies);
 	deleteInactive(projectiles);
 	deleteInactive(enemies);
 	spawnEnemies(ellapsedTime);
-	drawObjects();
+	drawObjects(display.cx);
+	drawText(display.cx, playerShip.health, score);
 	requestAnimationFrame(update);
 }
 
@@ -140,6 +162,7 @@ function CanvasDisplay(parent){
 	this.canvas.width = gameConstants.WINDOW_WIDTH;
 	this.canvas.height = gameConstants.WINDOW_HEIGHT;
 	this.cx = this.canvas.getContext("2d");
+	this.cx.font = "15px Georgia";
 	this.parent.appendChild(this.canvas);
 }
 CanvasDisplay.prototype.wipeCanvas = function(){
@@ -157,8 +180,6 @@ addEventListener("keydown", function(event){
 		playerShip.direction = -1;
 	else if (!keyPrevDown && event.which == 39)
 		playerShip.direction = 1;
-	// else if (event.which == 32)
-	// 	playerShip.shoot();
 	keyPrevDown = true;
 })
 
@@ -188,19 +209,29 @@ function updateObjects(array, ellapsedTime, cx){
 	}
 }
 
-function drawObjects(){
-	playerShip.draw(display.cx);
+function drawObjects(displayContext){
+	playerShip.draw(displayContext);
 	for (i=0; i<projectiles.length; i++){
-		projectiles[i].draw(display.cx);
+		projectiles[i].draw(displayContext);
 	}
 	for (i=0; i<enemies.length; i++){
-		enemies[i].draw(display.cx);
+		enemies[i].draw(displayContext);
 	}
 }
 
-function checkCollisions(projectiles){
+function checkCollisions(projectiles, enemies){
 	for (i=0; i<projectiles.length; i++){
-		playerShip.checkCollision(projectiles[i]);
+		if (projectiles[i].active){
+			playerShip.checkCollision(projectiles[i]);
+			for (j=0; j<enemies.length; j++){
+				if (projectiles[i].playerProjectile)
+					enemies[j].checkCollision(projectiles[i]);
+			}
+		}
+	}
+	for (i=0; i<enemies.length; i++){
+		if (enemies[i].active)
+			playerShip.checkEnemyCollision(enemies[i]);
 	}
 }
 
@@ -217,5 +248,24 @@ function spawnEnemies(ellapsedTime){
 		enemies.push(new EnemyShip(Math.floor(Math.random() * (
 			gameConstants.WINDOW_WIDTH - gameConstants.ENEMY_SHIP_WIDTH))));
  		sinceSpawn = 0;
+	}
+}
+
+function drawText(displayContext, health, score){
+	if (health > 0){
+		displayContext.fillText(gameConstants.HEALTH_STRING + health, 10, 17);
+		displayContext.fillText(gameConstants.SCORE_STRING + score, 10, 37);
+	}
+	else{
+		for (i=0; i<enemies.length; i++){
+			enemies[i].active = false;
+		}
+		for (i=0; i<projectiles.length; i++){
+			projectiles[i].active = false;
+		}
+		displayContext.textAlign = "center";
+		displayContext.fillText("YOU ARE DEAD", gameConstants.WINDOW_WIDTH / 2, gameConstants.WINDOW_HEIGHT / 2 - 5);
+		displayContext.fillText(gameConstants.SCORE_STRING + score,
+			gameConstants.WINDOW_WIDTH / 2, gameConstants.WINDOW_HEIGHT / 2 + 20);
 	}
 }
